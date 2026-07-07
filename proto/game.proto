@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+// ==========================================
+// 1. KADEMLIA DISCOVERY LAYER
+// ==========================================
+
+message KademliaNode {
+  bytes node_id = 1; // 160-bit ID
+  string ip_address = 2;
+  int32 port = 3;
+}
+
+message FindNodeRequest {
+  KademliaNode sender = 1;
+  bytes target_id = 2;
+}
+
+message NodesResponse {
+  repeated KademliaNode nodes = 1;
+}
+
+message StoreRequest {
+  KademliaNode sender = 1;
+  bytes key = 2; // e.g., Hash of Lobby Name
+  bytes value = 3; // e.g., Host's IP and Port
+}
+
+message FindValueRequest {
+  KademliaNode sender = 1;
+  bytes key = 2;
+}
+
+message FindValueResponse {
+  oneof result {
+    bytes value = 1;
+    NodesResponse closest_nodes = 2;
+  }
+}
+
+message Ping {
+  int64 timestamp = 1;
+}
+
+// ==========================================
+// 2. HOST-BASED LOBBY LAYER
+// ==========================================
+
+message PlayerInfo {
+  int32 player_id = 1;
+  string player_name = 2;
+  string ip_address = 3;
+  int32 port = 4;
+}
+
+message ServerReply {
+  bool success = 1;
+  string message = 2;
+}
+
+// Emitted by the Host to keep clients updated on lobby state
+message LobbyEvent {
+  oneof event {
+    PlayerInfo player_joined = 1;
+    string player_left = 2;
+    GameStart game_start = 3; // The signal to transition to P2P
+  }
+}
+
+// Contains the IP addresses of everyone in the lobby so the Mesh can form
+message GameStart {
+  repeated PlayerInfo all_peers = 1;
+  string map_name = 2;
+}
+
+service LobbyService { 
+  // Clients call this on the Host's IP. 
+  // Returns a stream so the Host can update clients when new people join.
+  rpc JoinLobby(PlayerInfo) returns (stream LobbyEvent);
+  rpc LeaveLobby(PlayerInfo) returns (ServerReply);
+}
+
+// ==========================================
+// 3. TRUE P2P GAMEPLAY LAYER
+// ==========================================
+
+message PlayerState {
+  int32 player_id = 1;
+  string player_name = 2;
+  float x = 3;
+  float y = 4;
+  float direction = 5;
+  int32 hp = 6;
+}
+
+message Attack {
+  string attacker_id = 1;
+  string target_id = 2;
+  int32 damage = 3;
+}
+
+message Bullet {
+  string attacker_id = 1;
+  float xi = 2;
+  float yi = 3;
+  float xf = 4;
+  float yf = 5;
+}
+
+message PlayerDeath {
+  int32 player_id = 1;
+  string killer_id = 2;
+}
+
+message SafeZone {
+  float x = 1;
+  float y = 2;
+  float radius = 3;
+}
+
+message GameEnd {
+  string winner_id = 1;
+}
+
+message PlayerDisconnect {
+  string player_id = 1;
+}
+
+message HostRematch {
+  bool available = 1;
+}
+
+message GameEvent {
+  oneof event {
+    PlayerState state_update = 1;
+    Bullet bullet_fired = 2;
+    Attack received_attack = 3;
+    PlayerDeath player_death = 4;
+    SafeZone zone_update = 5;
+    GameEnd game_ended = 6;
+    PlayerDisconnect disconnect_event = 9;
+    HostRematch host_rematch = 10;
+  }
+}
+
+service PeerGameService {
+  // Bidirectional stream: Peer A sends moves to Peer B, and receives Peer B's moves.
+  rpc P2PStream(stream GameEvent) returns (stream GameEvent);
+}
