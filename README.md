@@ -23,9 +23,6 @@ pip install uv
 ```bash
 uv venv
 ```
-```bash
-uv pip install -r requirements.txt
-```
 
 - Dependencies in `requirements.txt` (after UV installation and virtual environment creation):
 
