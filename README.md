@@ -16,10 +16,21 @@ The 3D engine, the raycaster, and the ASCII texture/sprite assets are adapted fr
 ## Requirements
 
 - Python 3
-- Dependencies in `requirements.txt`:
+- UV Python module to create a virtual environment and add all dependencies:
+```bash
+pip install uv
+```
+```bash
+uv venv
+```
+```bash
+uv pip install -r requirements.txt
+```
+
+- Dependencies in `requirements.txt` (after UV installation and virtual environment creation):
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 On Windows the standard-library `curses` module is not bundled; install `windows-curses` if it is missing.
