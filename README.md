@@ -35,7 +35,7 @@ On Windows the standard-library `curses` module is not bundled; install `windows
 ## Running
 
 ```bash
-python src/main.py
+uv run src/main.py
 ```
 
 On first run the game generates a persistent numeric player ID at `~/.shoot_id` and stores its generated map at `~/.shoot/generated.map`.
