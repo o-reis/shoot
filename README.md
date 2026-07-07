@@ -6,6 +6,11 @@ Built for a university systems-networking course.
 
 ## Credits
 
+Made by:
+Bernardo Reis
+Fernando Santos
+Nuno Costa
+
 The 3D engine, the raycaster, and the ASCII texture/sprite assets are adapted from the original JavaScript engine in [`legacy/`](legacy/) (`gameengine.js`, `index.html`). That folder is the historical source the Python port grew out of.
 
 ## Requirements
